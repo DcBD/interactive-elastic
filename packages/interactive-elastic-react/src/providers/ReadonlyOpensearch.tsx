@@ -1,6 +1,6 @@
 // Create Context and Provider that will be used to wrap the app and provide the client to all components
-import { APIOptions, ReadOnlyClient } from "interactive-elastic-core/src/main";
-import { createContext, useContext, useMemo } from "react";
+import { APIOptions, ReadOnlyClient } from "interactive-elastic-core";
+import { createContext, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const ClientContext = createContext<ReadOnlyClient>(null as any);

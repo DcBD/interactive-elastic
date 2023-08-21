@@ -1,58 +1,68 @@
-import Authorization from "./authorization/authorization";
-import BasicAuthorization, { BasicAuthorizationOptions } from "./authorization/basic";
-
+import Authorization, { AuthorizationOptions } from "./authorization/authorization";
+import BasicAuthorization, {
+    BasicAuthorizationOptions,
+} from "./authorization/basic";
+import AWSAuthorization, { AWSAuthorizationHeaderOptions, AWSAuthorizationOptions } from "./authorization/aws";
 
 interface APIAuthorization {
-    type: 'basic' | 'awsSigned'
+    type: "basic" | "awsSigned";
 }
 
 export interface APIOptions {
     endpoint: string;
-    authorization: APIAuthorization | BasicAuthorizationOptions;
+    authorization: APIAuthorization | BasicAuthorizationOptions | AWSAuthorizationOptions;
 }
 
-
-type RequestPaths = 'msearch' | 'search' | 'clusterHealth';
-type RequestMethod = 'GET' | 'POST'
-
-
-const paths: Record<RequestPaths, string> = {
-    msearch: '/_msearch',
-    search: '/_search',
-    clusterHealth: '/_cluster/health'
-}
+type RequestMethod = "GET" | "POST";
 
 export class API {
-
     readonly endpoint: string;
-    readonly authorization: Authorization
+    readonly authorization: Authorization;
     constructor({ endpoint, authorization }: APIOptions) {
         this.endpoint = endpoint;
 
         switch (authorization.type) {
-            case 'basic':
-                const { username, password } = authorization as BasicAuthorizationOptions;
+            case "basic":
+                const { username, password } =
+                    authorization as BasicAuthorizationOptions;
                 this.authorization = new BasicAuthorization(username, password);
                 break;
-            case 'awsSigned':
-                throw new Error('Not implemented');
+            case "awsSigned":
+                const { credentials } = authorization as AWSAuthorizationOptions;
+                this.authorization = new AWSAuthorization(credentials);
+                break;
         }
-
     }
 
+    public async makeRequest<T>(
+        path: string,
+        headers: HeadersInit = {},
+        body?: BodyInit | null,
+        method: RequestMethod = "POST"
+    ): Promise<T> {
+        const url = this.endpoint + path
 
+        let authorizationOptions: AuthorizationOptions = {}
 
+        if (this.authorization instanceof AWSAuthorization) {
 
-    public async makeRequest<T>(path: string, headers: HeadersInit = {}, body?: BodyInit | null, method: RequestMethod = 'POST'): Promise<T> {
-        const response = await fetch(this.endpoint + path, {
+            authorizationOptions = {
+                url,
+                body
+            } as AWSAuthorizationHeaderOptions
+        }
+
+        const signedHeaders = await this.authorization.getAuthorizationHeader(authorizationOptions)
+
+        const response = await fetch(url, {
             method,
             headers: {
-                ...this.authorization.getAuthorizationHeader(),
-                ...headers
+                ...signedHeaders,
+                ...headers,
             },
-            body
-        })
+            body,
+        });
 
-        return await response.json() as T;
+        return (await response.json()) as T;
     }
 }

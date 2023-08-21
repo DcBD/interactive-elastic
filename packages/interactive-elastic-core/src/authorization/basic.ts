@@ -16,7 +16,7 @@ export default class BasicAuthorization implements Authorization {
     }
 
 
-    getAuthorizationHeader(): HeadersInit {
+    async getAuthorizationHeader(): Promise<HeadersInit> {
         return {
             'Authorization': 'Basic ' + btoa(this.username + ':' + this.password),
         };
