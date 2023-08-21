@@ -1,5 +1,6 @@
 import Authorization, { AuthorizationOptions } from "./authorization";
 import { AWSCredentials } from "./types";
+// @ts-ignore
 import { AwsV4Signer } from 'aws4fetch';
 
 
