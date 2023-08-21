@@ -14,8 +14,7 @@
     "vite-plugin-dts": "^3.5.2"
   },
   "dependencies": {
-    "aws4fetch": "^1.0.17",
-    "interactive-elastic-core": "workspace:^"
+    "aws4fetch": "^1.0.17"
   },
   "exports": {
     ".": {

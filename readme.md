@@ -21,7 +21,7 @@ Alpha ready features:
 
 Core:
 
-- AWS4 Signed Auth
+- ~~AWS4 Signed Auth~~
 
 React:
 
