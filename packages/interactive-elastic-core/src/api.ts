@@ -1,9 +1,11 @@
 import Authorization from "./authorization/authorization";
-import BasicAuthorization, { BasicAuthorizationOptions } from "./authorization/basic";
-
+import BasicAuthorization, {
+    BasicAuthorizationOptions,
+} from "./authorization/basic";
+import AWSAuthorization, { AWSAuthorizationOptions } from "./authorization/aws";
 
 interface APIAuthorization {
-    type: 'basic' | 'awsSigned'
+    type: "basic" | "awsSigned";
 }
 
 export interface APIOptions {
@@ -11,48 +13,42 @@ export interface APIOptions {
     authorization: APIAuthorization | BasicAuthorizationOptions;
 }
 
-
-type RequestPaths = 'msearch' | 'search' | 'clusterHealth';
-type RequestMethod = 'GET' | 'POST'
-
-
-const paths: Record<RequestPaths, string> = {
-    msearch: '/_msearch',
-    search: '/_search',
-    clusterHealth: '/_cluster/health'
-}
+type RequestMethod = "GET" | "POST";
 
 export class API {
-
     readonly endpoint: string;
-    readonly authorization: Authorization
+    readonly authorization: Authorization;
     constructor({ endpoint, authorization }: APIOptions) {
         this.endpoint = endpoint;
 
         switch (authorization.type) {
-            case 'basic':
-                const { username, password } = authorization as BasicAuthorizationOptions;
+            case "basic":
+                const { username, password } =
+                    authorization as BasicAuthorizationOptions;
                 this.authorization = new BasicAuthorization(username, password);
                 break;
-            case 'awsSigned':
-                throw new Error('Not implemented');
+            case "awsSigned":
+                const { credentials } = authorization as AWSAuthorizationOptions;
+                this.authorization = new AWSAuthorization(credentials);
+                break;
         }
-
     }
 
-
-
-
-    public async makeRequest<T>(path: string, headers: HeadersInit = {}, body?: BodyInit | null, method: RequestMethod = 'POST'): Promise<T> {
+    public async makeRequest<T>(
+        path: string,
+        headers: HeadersInit = {},
+        body?: BodyInit | null,
+        method: RequestMethod = "POST"
+    ): Promise<T> {
         const response = await fetch(this.endpoint + path, {
             method,
             headers: {
-                ...this.authorization.getAuthorizationHeader(),
-                ...headers
+                ...(await this.authorization.getAuthorizationHeader()),
+                ...headers,
             },
-            body
-        })
+            body,
+        });
 
-        return await response.json() as T;
+        return (await response.json()) as T;
     }
 }

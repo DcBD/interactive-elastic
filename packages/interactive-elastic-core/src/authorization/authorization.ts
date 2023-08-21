@@ -1,4 +1,7 @@
-export default abstract class Authorization {
+export interface AuthorizationOptions {
+    [key: string]: any
+}
 
-    abstract getAuthorizationHeader(): HeadersInit;
+export default abstract class Authorization {
+    abstract getAuthorizationHeader(options?: AuthorizationOptions): Promise<HeadersInit>;
 }
