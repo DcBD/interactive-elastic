@@ -11,5 +11,7 @@ export interface AWSAuthorizationHeaderOptions extends AuthorizationOptions {
 export default class AWSAuthorization implements Authorization {
     private readonly credentials;
     constructor(credentials: AWSCredentials);
-    getAuthorizationHeader(options: AWSAuthorizationHeaderOptions): Promise<HeadersInit>;
+    getAuthorizationHeader(options: AWSAuthorizationHeaderOptions): Promise<{
+        [name: string]: any;
+    }>;
 }

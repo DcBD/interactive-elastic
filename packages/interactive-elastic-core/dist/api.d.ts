@@ -15,4 +15,4 @@ export declare class API {
     constructor({ endpoint, authorization }: APIOptions);
     makeRequest<T>(path: string, headers?: HeadersInit, body?: BodyInit | null, method?: RequestMethod): Promise<T>;
 }
-export { };
+export {};

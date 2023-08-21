@@ -22,6 +22,8 @@ Alpha ready features:
 Core:
 
 - ~~AWS4 Signed Auth~~
+- Better logging
+  - e.g when authorization fails and backend returns error message
 
 React:
 

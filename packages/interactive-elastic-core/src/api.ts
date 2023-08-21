@@ -1,8 +1,8 @@
-import Authorization from "./authorization/authorization";
+import Authorization, { AuthorizationOptions } from "./authorization/authorization";
 import BasicAuthorization, {
     BasicAuthorizationOptions,
 } from "./authorization/basic";
-import AWSAuthorization, { AWSAuthorizationOptions } from "./authorization/aws";
+import AWSAuthorization, { AWSAuthorizationHeaderOptions, AWSAuthorizationOptions } from "./authorization/aws";
 
 interface APIAuthorization {
     type: "basic" | "awsSigned";
@@ -10,7 +10,7 @@ interface APIAuthorization {
 
 export interface APIOptions {
     endpoint: string;
-    authorization: APIAuthorization | BasicAuthorizationOptions;
+    authorization: APIAuthorization | BasicAuthorizationOptions | AWSAuthorizationOptions;
 }
 
 type RequestMethod = "GET" | "POST";
@@ -40,10 +40,24 @@ export class API {
         body?: BodyInit | null,
         method: RequestMethod = "POST"
     ): Promise<T> {
-        const response = await fetch(this.endpoint + path, {
+        const url = this.endpoint + path
+
+        let authorizationOptions: AuthorizationOptions = {}
+
+        if (this.authorization instanceof AWSAuthorization) {
+
+            authorizationOptions = {
+                url,
+                body
+            } as AWSAuthorizationHeaderOptions
+        }
+
+        const signedHeaders = await this.authorization.getAuthorizationHeader(authorizationOptions)
+
+        const response = await fetch(url, {
             method,
             headers: {
-                ...(await this.authorization.getAuthorizationHeader()),
+                ...signedHeaders,
                 ...headers,
             },
             body,

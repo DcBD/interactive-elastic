@@ -22,7 +22,7 @@ export default class AWSAuthorization implements Authorization {
     }
 
 
-    async getAuthorizationHeader(options: AWSAuthorizationHeaderOptions): Promise<HeadersInit> {
+    async getAuthorizationHeader(options: AWSAuthorizationHeaderOptions): Promise<{ [name: string]: any }> {
         const aws4Signer = new AwsV4Signer({
             ...this.credentials,
             headers: {
@@ -34,6 +34,11 @@ export default class AWSAuthorization implements Authorization {
 
         const { headers } = await aws4Signer.sign()
 
-        return headers
+        return {
+            authorization: headers.get('authorization'),
+            'x-amz-date': headers.get('x-amz-date'),
+            'x-amz-security-token': headers.get('x-amz-security-token'),
+            'Content-Type': 'application/x-ndjson'
+        }
     }
 } 
