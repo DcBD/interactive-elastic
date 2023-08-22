@@ -1,5 +1,5 @@
-import { jsx as q } from "react/jsx-runtime";
-import { createContext as R, useContext as X } from "react";
+import { jsx as X } from "react/jsx-runtime";
+import { createContext as q, useContext as R } from "react";
 import { useQuery as O } from "@tanstack/react-query";
 /**
  * @license MIT <https://opensource.org/licenses/MIT>
@@ -28,14 +28,14 @@ const g = new TextEncoder(), I = {
   "connection"
 ]);
 class W {
-  constructor({ method: e, url: t, headers: n, body: o, accessKeyId: i, secretAccessKey: a, sessionToken: h, service: m, region: y, cache: T, datetime: v, signQuery: k, appendSessionToken: P, allHeaders: j, singleEncode: E }) {
+  constructor({ method: e, url: t, headers: a, body: o, accessKeyId: i, secretAccessKey: n, sessionToken: h, service: m, region: y, cache: T, datetime: v, signQuery: k, appendSessionToken: P, allHeaders: j, singleEncode: E }) {
     if (t == null)
       throw new TypeError("url is a required option");
     if (i == null)
       throw new TypeError("accessKeyId is a required option");
-    if (a == null)
+    if (n == null)
       throw new TypeError("secretAccessKey is a required option");
-    this.method = e || (o ? "POST" : "GET"), this.url = new URL(t), this.headers = new Headers(n || {}), this.body = o, this.accessKeyId = i, this.secretAccessKey = a, this.sessionToken = h;
+    this.method = e || (o ? "POST" : "GET"), this.url = new URL(t), this.headers = new Headers(a || {}), this.body = o, this.accessKeyId = i, this.secretAccessKey = n, this.sessionToken = h;
     let f, S;
     (!m || !y) && ([f, S] = U(this.url, this.headers)), this.service = m || f || "", this.region = y || S || "us-east-1", this.cache = T || /* @__PURE__ */ new Map(), this.datetime = v || (/* @__PURE__ */ new Date()).toISOString().replace(/[:-]|\.\d{3}/g, ""), this.signQuery = k, this.appendSessionToken = P || this.service === "iotdevicegateway", this.headers.delete("Host"), this.service === "s3" && !this.signQuery && !this.headers.has("X-Amz-Content-Sha256") && this.headers.set("X-Amz-Content-Sha256", "UNSIGNED-PAYLOAD");
     const c = this.signQuery ? this.url.searchParams : this.headers;
@@ -78,12 +78,12 @@ class W {
   }
   async signature() {
     const e = this.datetime.slice(0, 8), t = [this.secretAccessKey, e, this.region, this.service].join();
-    let n = this.cache.get(t);
-    if (!n) {
-      const o = await u("AWS4" + this.secretAccessKey, e), i = await u(o, this.region), a = await u(i, this.service);
-      n = await u(a, "aws4_request"), this.cache.set(t, n);
+    let a = this.cache.get(t);
+    if (!a) {
+      const o = await u("AWS4" + this.secretAccessKey, e), i = await u(o, this.region), n = await u(i, this.service);
+      a = await u(n, "aws4_request"), this.cache.set(t, a);
     }
-    return p(await u(n, await this.stringToSign()));
+    return p(await u(a, await this.stringToSign()));
   }
   async stringToSign() {
     return [
@@ -136,7 +136,7 @@ function H(s) {
   return s.replace(/[!'()*]/g, (e) => "%" + e.charCodeAt(0).toString(16).toUpperCase());
 }
 function U(s, e) {
-  const { hostname: t, pathname: n } = s;
+  const { hostname: t, pathname: a } = s;
   if (t.endsWith(".r2.cloudflarestorage.com"))
     return ["s3", "auto"];
   if (t.endsWith(".backblazeb2.com")) {
@@ -144,19 +144,19 @@ function U(s, e) {
     return h != null ? ["s3", h[1]] : ["", ""];
   }
   const o = t.replace("dualstack.", "").match(/([^.]+)\.(?:([^.]*)\.)?amazonaws\.com(?:\.cn)?$/);
-  let [i, a] = (o || ["", ""]).slice(1, 3);
-  if (a === "us-gov")
-    a = "us-gov-west-1";
-  else if (a === "s3" || a === "s3-accelerate")
-    a = "us-east-1", i = "s3";
+  let [i, n] = (o || ["", ""]).slice(1, 3);
+  if (n === "us-gov")
+    n = "us-gov-west-1";
+  else if (n === "s3" || n === "s3-accelerate")
+    n = "us-east-1", i = "s3";
   else if (i === "iot")
-    t.startsWith("iot.") ? i = "execute-api" : t.startsWith("data.jobs.iot.") ? i = "iot-jobs-data" : i = n === "/mqtt" ? "iotdevicegateway" : "iotdata";
+    t.startsWith("iot.") ? i = "execute-api" : t.startsWith("data.jobs.iot.") ? i = "iot-jobs-data" : i = a === "/mqtt" ? "iotdevicegateway" : "iotdata";
   else if (i === "autoscaling") {
     const h = (e.get("X-Amz-Target") || "").split(".")[0];
     h === "AnyScaleFrontendService" ? i = "application-autoscaling" : h === "AnyScaleScalingPlannerFrontendService" && (i = "autoscaling-plans");
   } else
-    a == null && i.startsWith("s3-") ? (a = i.slice(3).replace(/^fips-|^external-1/, ""), i = "s3") : i.endsWith("-fips") ? i = i.slice(0, -5) : a && /-\d$/.test(i) && !/-\d$/.test(a) && ([i, a] = [a, i]);
-  return [I[i] || i, a];
+    n == null && i.startsWith("s3-") ? (n = i.slice(3).replace(/^fips-|^external-1/, ""), i = "s3") : i.endsWith("-fips") ? i = i.slice(0, -5) : n && /-\d$/.test(i) && !/-\d$/.test(n) && ([i, n] = [n, i]);
+  return [I[i] || i, n];
 }
 var D = Object.defineProperty, M = (s, e, t) => e in s ? D(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t, d = (s, e, t) => (M(s, typeof e != "symbol" ? e + "" : e, t), t);
 class Q {
@@ -181,11 +181,12 @@ class C {
       },
       url: e.url,
       body: e.body
-    }), { headers: n } = await t.sign();
+    }), { headers: a } = await t.sign();
     return {
-      authorization: n.get("authorization"),
-      "x-amz-date": n.get("x-amz-date"),
-      "x-amz-security-token": n.get("x-amz-security-token"),
+      authorization: a.get("authorization"),
+      "x-amz-date": a.get("x-amz-date"),
+      "x-amz-security-token": a.get("x-amz-security-token"),
+      "X-Amz-Content-Sha256": a.get("X-Amz-Content-Sha256"),
       "Content-Type": "application/x-ndjson"
     };
   }
@@ -194,8 +195,8 @@ class B {
   constructor({ endpoint: e, authorization: t }) {
     switch (d(this, "endpoint"), d(this, "authorization"), this.endpoint = e, t.type) {
       case "basic":
-        const { username: n, password: o } = t;
-        this.authorization = new Q(n, o);
+        const { username: a, password: o } = t;
+        this.authorization = new Q(a, o);
         break;
       case "awsSigned":
         const { credentials: i } = t;
@@ -203,21 +204,21 @@ class B {
         break;
     }
   }
-  async makeRequest(e, t = {}, n, o = "POST") {
+  async makeRequest(e, t = {}, a, o = "POST") {
     const i = this.endpoint + e;
-    let a = {};
-    this.authorization instanceof C && (a = {
+    let n = {};
+    this.authorization instanceof C && (n = {
       url: i,
-      body: n
+      body: a
     });
-    const h = await this.authorization.getAuthorizationHeader(a);
+    const h = await this.authorization.getAuthorizationHeader(n);
     return await (await fetch(i, {
       method: o,
       headers: {
         ...h,
         ...t
       },
-      body: n
+      body: a
     })).json();
   }
 }
@@ -244,22 +245,22 @@ class _ extends N {
     return this.get({ path: "/_cluster/health" });
   }
 }
-const x = R(null);
+const x = q(null);
 function V({
   authorization: s,
   endpoint: e,
   children: t
 }) {
-  const n = new _({
+  const a = new _({
     apiOptions: {
       authorization: s,
       endpoint: e
     }
   });
-  return /* @__PURE__ */ q(x.Provider, { value: n, children: t });
+  return /* @__PURE__ */ X(x.Provider, { value: a, children: t });
 }
 function G() {
-  return X(x);
+  return R(x);
 }
 function Y(s = 1e3) {
   const e = G();
