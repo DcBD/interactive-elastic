@@ -1,24 +1,18 @@
 // Create Context and Provider that will be used to wrap the app and provide the client to all components
 import { APIOptions, ReadOnlyClient } from "interactive-elastic-core";
-import { createContext, useMemo } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createContext } from "react";
+
 
 export const ClientContext = createContext<ReadOnlyClient>(null as any);
 
 interface Props extends APIOptions {
     children: React.ReactNode;
-    /**
-     * If not specified a new instance of query client will be created.
-     * If your application uses reactQueryClient, you should pass it here.
-     */
-    reactQueryClient?: QueryClient;
 }
 
 export default function ReadOnlyOpensearch({
     authorization,
     endpoint,
-    children,
-    reactQueryClient,
+    children
 }: Props) {
     const client = new ReadOnlyClient({
         apiOptions: {
@@ -27,14 +21,7 @@ export default function ReadOnlyOpensearch({
         },
     });
 
-    const queryClient = useMemo(
-        () => reactQueryClient || new QueryClient(),
-        [reactQueryClient]
-    );
-
     return (
-        <QueryClientProvider client={queryClient}>
-            <ClientContext.Provider value={client} children={children} />
-        </QueryClientProvider>
+        <ClientContext.Provider value={client} children={children} />
     );
 }
