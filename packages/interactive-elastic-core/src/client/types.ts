@@ -20,7 +20,7 @@ export interface ClusterHealthResponse {
     active_shards_percent_as_number: number;
 }
 
-export interface SearchResponse<T> {
+export interface SearchResponse<Source, AggregationBucket = undefined> {
     took: number;
     timed_out: boolean;
     _shards: {
@@ -34,12 +34,17 @@ export interface SearchResponse<T> {
             value: number;
         };
         max_score: number;
-        hits: {
+        hits?: {
             _index: string;
             _type: string;
             _id: string;
             _score: number;
-            _source: T;
+            _source: Source;
         }[];
     };
+    aggregations?: {
+        [aggregation_name: string]: {
+            buckets: AggregationBucket[]
+        }
+    }
 }
