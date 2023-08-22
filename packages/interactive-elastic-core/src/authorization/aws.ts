@@ -38,7 +38,6 @@ export default class AWSAuthorization implements Authorization {
             authorization: headers.get('authorization'),
             'x-amz-date': headers.get('x-amz-date'),
             'x-amz-security-token': headers.get('x-amz-security-token'),
-            'X-Amz-Content-Sha256': headers.get("X-Amz-Content-Sha256"),
             'Content-Type': 'application/x-ndjson',
         }
     }

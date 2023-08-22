@@ -32,12 +32,11 @@ class c {
       authorization: a.get("authorization"),
       "x-amz-date": a.get("x-amz-date"),
       "x-amz-security-token": a.get("x-amz-security-token"),
-      "X-Amz-Content-Sha256": a.get("X-Amz-Content-Sha256"),
       "Content-Type": "application/x-ndjson"
     };
   }
 }
-class z {
+class w {
   constructor({ endpoint: t, authorization: e }) {
     n(this, "endpoint");
     n(this, "authorization");
@@ -70,12 +69,12 @@ class z {
     })).json();
   }
 }
-class w {
+class z {
   constructor({
     apiOptions: t
   }) {
     n(this, "api");
-    this.api = new z(t);
+    this.api = new w(t);
   }
   async get({ path: t }) {
     return this.api.makeRequest(t, {}, null, "GET");
@@ -89,7 +88,7 @@ class w {
     return this.post({ path: `/${t}/_search`, body: e });
   }
 }
-class A extends w {
+class A extends z {
   async getClusterHealth() {
     return this.get({ path: "/_cluster/health" });
   }
