@@ -40,7 +40,8 @@ export interface SearchResponse<Source, AggregationBucket = undefined> {
     };
     aggregations?: {
         [aggregation_name: string]: {
-            buckets: AggregationBucket[];
+            buckets?: AggregationBucket[];
+            value?: number | string;
         };
     };
 }

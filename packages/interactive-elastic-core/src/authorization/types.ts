@@ -6,3 +6,5 @@ export interface AWSCredentials {
     authenticated: boolean;
     expiration?: Date;
 }
+
+export type AWSCredentialsGetter = (() => Promise<AWSCredentials>)
