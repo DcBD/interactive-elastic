@@ -1,12 +1,12 @@
 import Authorization, { AuthorizationOptions } from "./authorization";
-import { AWSCredentials } from "./types";
+import { AWSCredentials, AWSCredentialsGetter } from "./types";
 // @ts-ignore
 import { AwsV4Signer } from 'aws4fetch';
 
 
 export interface AWSAuthorizationOptions {
     type: "awsSigned";
-    credentials: AWSCredentials
+    credentials: AWSCredentials | AWSCredentialsGetter;
 }
 
 export interface AWSAuthorizationHeaderOptions extends AuthorizationOptions {
@@ -15,16 +15,18 @@ export interface AWSAuthorizationHeaderOptions extends AuthorizationOptions {
 }
 
 export default class AWSAuthorization implements Authorization {
-    private readonly credentials: AWSCredentials;
+    private readonly credentials: AWSCredentials | AWSCredentialsGetter;
 
-    constructor(credentials: AWSCredentials) {
+    constructor(credentials: AWSCredentials | AWSCredentialsGetter) {
         this.credentials = credentials
     }
 
 
     async getAuthorizationHeader(options: AWSAuthorizationHeaderOptions): Promise<{ [name: string]: any }> {
+        const credentials = typeof this.credentials === 'function' ? await this.credentials() : this.credentials
+
         const aws4Signer = new AwsV4Signer({
-            ...this.credentials,
+            ...credentials,
             headers: {
                 'Content-Type': 'application/x-ldjson'
             },
