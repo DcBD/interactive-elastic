@@ -59,7 +59,7 @@ class W {
         w.add(r);
       }
       return !0;
-    }).map((r) => r.map((l) => H(encodeURIComponent(l)))).sort(([r, l], [A, b]) => r < A ? -1 : r > A ? 1 : l < b ? -1 : l > b ? 1 : 0).map((r) => r.join("=")).join("&");
+    }).map((r) => r.map((u) => H(encodeURIComponent(u)))).sort(([r, u], [A, b]) => r < A ? -1 : r > A ? 1 : u < b ? -1 : u > b ? 1 : 0).map((r) => r.join("=")).join("&");
   }
   async sign() {
     return this.signQuery ? (this.url.searchParams.set("X-Amz-Signature", await this.signature()), this.sessionToken && this.appendSessionToken && this.url.searchParams.set("X-Amz-Security-Token", this.sessionToken)) : this.headers.set("Authorization", await this.authHeader()), {
@@ -80,10 +80,10 @@ class W {
     const e = this.datetime.slice(0, 8), t = [this.secretAccessKey, e, this.region, this.service].join();
     let n = this.cache.get(t);
     if (!n) {
-      const o = await u("AWS4" + this.secretAccessKey, e), i = await u(o, this.region), a = await u(i, this.service);
-      n = await u(a, "aws4_request"), this.cache.set(t, n);
+      const o = await l("AWS4" + this.secretAccessKey, e), i = await l(o, this.region), a = await l(i, this.service);
+      n = await l(a, "aws4_request"), this.cache.set(t, n);
     }
-    return p(await u(n, await this.stringToSign()));
+    return p(await l(n, await this.stringToSign()));
   }
   async stringToSign() {
     return [
@@ -116,7 +116,7 @@ class W {
     return e;
   }
 }
-async function u(s, e) {
+async function l(s, e) {
   const t = await crypto.subtle.importKey(
     "raw",
     typeof s == "string" ? g.encode(s) : s,
@@ -174,18 +174,18 @@ class C {
     d(this, "credentials"), this.credentials = e;
   }
   async getAuthorizationHeader(e) {
-    const t = new W({
-      ...this.credentials,
+    const t = typeof this.credentials == "function" ? await this.credentials() : this.credentials, n = new W({
+      ...t,
       headers: {
         "Content-Type": "application/x-ldjson"
       },
       url: e.url,
       body: e.body
-    }), { headers: n } = await t.sign();
+    }), { headers: o } = await n.sign();
     return {
-      authorization: n.get("authorization"),
-      "x-amz-date": n.get("x-amz-date"),
-      "x-amz-security-token": n.get("x-amz-security-token"),
+      authorization: o.get("authorization"),
+      "x-amz-date": o.get("x-amz-date"),
+      "x-amz-security-token": o.get("x-amz-security-token"),
       "Content-Type": "application/x-ndjson"
     };
   }
